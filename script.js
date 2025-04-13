@@ -5,14 +5,13 @@ async function triggerPayment() {
     return;
   }
 
-  // Update the fetch URL to point to your Netlify function
-  const response = await fetch('/.netlify/functions/create-checkout-session', {
+  const response = await fetch('.netlify/functions/create-checkout-session', { // Change to use Netlify function path
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount }),
+    body: JSON.stringify({ amount }), // Sending amount to the backend
   });
 
   const session = await response.json();
-  const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ'); // Your Stripe public key
+  const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ');
   stripe.redirectToCheckout({ sessionId: session.id });
 }

@@ -1,38 +1,38 @@
-const stripe = require('stripe')(process.env.sk_test_51RCN4OPRHC7jcWnU8ZIIwbZkOQFFOrOIZm6p5cvC1huidHtcVYK3i6C7HoEyyqSrSJONjxECWGCiy2Yf2xCXvLhS00sBMCEiMe); // Secret key from Stripe
+// netlify/functions/create-checkout-session.js
+const stripe = require('stripe')('sk_test_51RCN4OPRHC7jcWnU8ZIIwbZkOQFFOrOIZm6p5cvC1huidHtcVYK3i6C7HoEyyqSrSJONjxECWGCiy2Yf2xCXvLhS00sBMCEiMe'); // Your Stripe secret key
 
-exports.handler = async (event, context) => {
+exports.handler = async function(event, context) {
   try {
-    const { amount } = JSON.parse(event.body);
+    const { amount } = JSON.parse(event.body); // Get the amount from the request body
 
-    // Create a Checkout Session with Stripe
+    // Create a new Checkout session with the selected amount
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
-            currency: 'eur',  // Set currency to EUR
+            currency: 'eur',
             product_data: {
-              name: 'In-game Currency',  // You can change this to match your product
+              name: 'Currency C$',
             },
-            unit_amount: Math.round(amount * 100), // Convert to cents
+            unit_amount: amount * 100, // Amount is in euros, multiply by 100 to get the cents
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.URL}/success.html`,
-      cancel_url: `${process.env.URL}/cancel.html`,
+      success_url: 'https://growmagplants.com/success',
+      cancel_url: 'https://growmagplants.com/cancel',
     });
 
     return {
       statusCode: 200,
       body: JSON.stringify({ id: session.id }),
     };
-  } catch (error) {
-    console.error('Error creating checkout session', error);
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };

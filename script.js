@@ -19,13 +19,41 @@ async function triggerPayment() {
     return;
   }
 
-  const response = await fetch('http://localhost:5000/create-checkout-session', {  // ❌ THIS LINE
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount }),
-  });
+  try {
+    // ✅ Use Netlify serverless function path
+    const response = await fetch('/.netlify/functions/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount }),
+    });
 
-  const session = await response.json();
-  const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ');
-  stripe.redirectToCheckout({ sessionId: session.id });
+    const session = await response.json();
+
+    if (!session.id) {
+      throw new Error('Invalid session response');
+    }
+
+    const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ');
+    stripe.redirectToCheckout({ sessionId: session.id });
+
+  } catch (error) {
+    console.error('Payment error:', error);
+    alert('Failed to initiate payment. Please try again later.');
+  }
 }
+
+function openSection(section) {
+  const sections = document.querySelectorAll('.details-section');
+  sections.forEach(sec => sec.style.display = 'none');
+  document.getElementById(`${section}-section`).style.display = 'block';
+}
+
+function updateTurtlePrice() {
+  const count = parseInt(document.getElementById('turtle-count').value);
+  const price = (count * 1.12).toFixed(2);
+  document.getElementById('turtle-price').textContent = price;
+}
+
+window.onload = () => {
+  document.getElementById('currency-section').style.display = 'block';
+};

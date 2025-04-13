@@ -5,13 +5,13 @@ async function triggerPayment() {
     return;
   }
 
-  const response = await fetch('.netlify/functions/create-checkout-session', { // Change to use Netlify function path
+  const response = await fetch('https://growmagplants.com/.netlify/functions/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount }), // Sending amount to the backend
+    body: JSON.stringify({ amount }),
   });
 
   const session = await response.json();
-  const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ');
+  const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ'); // Your Stripe public key
   stripe.redirectToCheckout({ sessionId: session.id });
 }

@@ -8,8 +8,12 @@ function selectCurrency(amount) {
 
 function updateCustomPrice() {
   const customAmount = parseFloat(document.getElementById('custom-amount').value);
-  const price = (pricePerUnit * customAmount).toFixed(2);
-  document.getElementById('custom-price').textContent = isNaN(customAmount) ? '0.00' : price;
+  if (isNaN(customAmount) || customAmount <= 0) {
+    document.getElementById('custom-price').textContent = '0.00';
+  } else {
+    const price = (pricePerUnit * customAmount).toFixed(2);
+    document.getElementById('custom-price').textContent = price;
+  }
 }
 
 async function triggerPayment() {
@@ -19,27 +23,15 @@ async function triggerPayment() {
     return;
   }
 
-  try {
-    // ✅ Use Netlify serverless function path
-    const response = await fetch('/.netlify/functions/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount }),
-    });
+  const response = await fetch('/.netlify/functions/create-checkout-session', { // Updated line
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount }), // Sending amount to the backend
+  });
 
-    const session = await response.json();
-
-    if (!session.id) {
-      throw new Error('Invalid session response');
-    }
-
-    const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ');
-    stripe.redirectToCheckout({ sessionId: session.id });
-
-  } catch (error) {
-    console.error('Payment error:', error);
-    alert('Failed to initiate payment. Please try again later.');
-  }
+  const session = await response.json();
+  const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ'); // Your Stripe public key
+  stripe.redirectToCheckout({ sessionId: session.id });
 }
 
 function openSection(section) {

@@ -1,126 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shop – growmagplants.com</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://js.stripe.com/v3/"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fish Shop – growmagplants.com</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Header Section -->
-  <header>
-    <div class="site-header">
-      <h1>growmagplants.com</h1>
-    </div>
-  </header>
+    <!-- Header Section -->
+    <header>
+        <div class="site-header">
+            <h1>growmagplants.com - Fish Shop</h1>
+        </div>
+    </header>
 
-  <!-- Main Content -->
-  <div class="page-frame">
-    <div class="floating-title">
-      Shop Bio: Affordable fish products and game items! Discounts every season for loyal customers. Get in touch if you need help!
-    </div>
+    <div class="page-frame">
+        <div class="floating-title">
+            Welcome to the Fish Shop! Explore the best items for your aquarium and game. Join our Discord for exclusive deals!
+        </div>
 
-    <div class="main-container">
-      <div class="item-card" onclick="openSection('currency')">
-        <img src="images/currency.png" alt="Currency C$" />
-        <h2>Currency C$</h2>
-      </div>
-      <div class="item-card" onclick="openSection('turtle')">
-        <img src="images/turtle.png" alt="Sea Turtle" />
-        <h2>Sea Turtle</h2>
-      </div>
-    </div>
+        <div class="main-container">
+            <!-- Fish Section -->
+            <div class="item-card" onclick="openSection('currency')">
+                <img src="images/fish.png" alt="Fish Items" />
+                <h2>Fish Items</h2>
+            </div>
+            <!-- Turtle Section -->
+            <div class="item-card" onclick="openSection('turtle')">
+                <img src="images/turtle.png" alt="Sea Turtle" />
+                <h2>Sea Turtle</h2>
+            </div>
+        </div>
 
-    <!-- Currency Section -->
-    <div class="details-section" id="currency-section">
-      <h2>Select C$ Amount</h2>
-      <p>Choose the amount of C$ you want to purchase. Select a predefined amount or enter your own.</p>
-      <div class="options">
-        <button onclick="selectCurrency(100000)">100K (€0.99)</button>
-        <button onclick="selectCurrency(500000)">500K (€4.95)</button>
-        <button onclick="selectCurrency(1000000)">1 Million (€9.90)</button>
-        <button onclick="selectCurrency(5000000)">5 Million (€49.50)</button>
-        <button onclick="selectCurrency(10000000)">10 Million (€99.00)</button>
-      </div>
-      <div class="custom-amount">
-        <input type="number" id="custom-amount" placeholder="Enter amount" oninput="updateCustomPrice()" />
-        <p class="custom-price">Price: €<span id="custom-price">0.00</span></p>
-      </div>
-      <div class="buy-section">
-        <button class="buy-button" onclick="triggerPayment()">Proceed to Payment</button>
-      </div>
-      <p class="desc">Fast delivery, 24/7 support, always online 💸</p>
+        <div class="discord-section">
+            <p class="discord-info">
+                Want to buy items or just chat with the community? Join our <a href="https://discord.gg/your-discord-link" target="_blank" class="discord-link">Discord Server</a> today!
+            </p>
+        </div>
     </div>
 
-    <!-- Turtle Section -->
-    <div class="details-section" id="turtle-section" style="display:none;">
-      <h2>Buy Sea Turtles</h2>
-      <div class="turtle-image">
-        <img src="images/turtle.png" alt="Sea Turtle" class="hover-img" />
-      </div>
-      <div class="turtle-description">
-        <p>Sea Turtles are not only adorable but provide valuable in-game resources. Only €1.12 each!</p>
-      </div>
-      <input type="number" min="1" max="100" value="1" id="turtle-count" onchange="updateTurtlePrice()" />
-      <p class="price-display">Price: €<span id="turtle-price">1.12</span></p>
-      <p class="desc">Safe, secure & fun 🐢. Always online and fast delivery.</p>
-    </div>
-  </div>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 growmagplants.com | All rights reserved.</p>
+        </div>
+    </footer>
 
-  <!-- Stripe Checkout Script -->
-  <script>
-    const pricePer100K = 0.99;
-    const pricePerUnit = pricePer100K / 100000;
-
-    function selectCurrency(amount) {
-      const price = (pricePerUnit * amount).toFixed(2);
-      document.getElementById('custom-price').textContent = price;
-    }
-
-    function updateCustomPrice() {
-      const customAmount = parseFloat(document.getElementById('custom-amount').value);
-      if (isNaN(customAmount) || customAmount <= 0) {
-        document.getElementById('custom-price').textContent = '0.00';
-      } else {
-        const price = (pricePerUnit * customAmount).toFixed(2);
-        document.getElementById('custom-price').textContent = price;
-      }
-    }
-
-    async function triggerPayment() {
-      const amount = parseFloat(document.getElementById('custom-price').textContent);
-      if (isNaN(amount) || amount <= 0) {
-        alert('Please select a valid amount.');
-        return;
-      }
-
-      const response = await fetch('http://localhost:5000/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount }),
-      });
-
-      const session = await response.json();
-      const stripe = Stripe('pk_test_51RCN4OPRHC7jcWnUpBPFBn5qwZBeepmXBEpz1MBDU3Q5kSATAKAtx5Yu04huzk1TTlGFRcrkmbNcJky7u9DhlzmI00MlQAplBZ'); // Your Stripe public key
-      stripe.redirectToCheckout({ sessionId: session.id });
-    }
-
-    function openSection(section) {
-      const sections = document.querySelectorAll('.details-section');
-      sections.forEach(sec => sec.style.display = 'none');
-      document.getElementById(`${section}-section`).style.display = 'block';
-    }
-
-    function updateTurtlePrice() {
-      const count = parseInt(document.getElementById('turtle-count').value);
-      const price = (count * 1.12).toFixed(2);
-      document.getElementById('turtle-price').textContent = price;
-    }
-
-    window.onload = () => {
-      document.getElementById('currency-section').style.display = 'block';
-    };
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
+

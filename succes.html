@@ -1,18 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Success</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Payment Successful</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      text-align: center;
+      padding-top: 100px;
+    }
+    h1 {
+      color: green;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Payment Successful!</h1>
-  </header>
-  <div class="content">
-    <p>Thank you for your purchase! Your transaction was successful. We will process your order shortly.</p>
-    <a href="index.html">Back to Shop</a>
-  </div>
+  <h1>✅ Payment Successful!</h1>
+  <p>Thank you for your purchase. You will receive your product shortly.</p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+
+    if (!sessionId) {
+      document.body.innerHTML = '<h1>❌ No session ID provided</h1>';
+    } else {
+      fetch(`/confirm-payment?session_id=${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log("✅ Payment sent to Discord");
+          } else {
+            document.body.innerHTML = '<h1>❌ Failed to confirm payment</h1>';
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+          document.body.innerHTML = '<h1>❌ Error confirming payment</h1>';
+        });
+    }
+  </script>
 </body>
 </html>

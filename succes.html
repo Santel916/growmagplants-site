@@ -19,14 +19,37 @@
   <p>Thank you for your purchase. You will receive your product shortly.</p>
 
   <script>
+    // Helper: parse query parameters into an object
+    function getQueryParams() {
+      const params = {};
+      window.location.search.substring(1).split("&").forEach(pair => {
+        const [key, value] = pair.split("=");
+        if (key && value) {
+          params[key] = decodeURIComponent(value.replace(/\+/g, ' '));
+        }
+      });
+      return params;
+    }
+
+    const params = getQueryParams();
+
+    // If URL contains data, save it to localStorage
+    if (params.userId && params.product && params.quantity && params.amount) {
+      localStorage.setItem('discordUserId', params.userId);
+      localStorage.setItem('product', params.product);
+      localStorage.setItem('quantity', params.quantity);
+      localStorage.setItem('amount', params.amount);
+    }
+
+    // Read from localStorage (fallback to defaults)
     const userId = localStorage.getItem('discordUserId') || 'Anonymous';
     const product = localStorage.getItem('product') || 'Unknown';
-    const quantity = localStorage.getItem('quantity') || 1;
+    const quantity = localStorage.getItem('quantity') || '1';
     const amount = localStorage.getItem('amount') || '0.00';
 
     const webhookURL = 'https://discord.com/api/webhooks/1379936127300927682/3Z0gAmRezA7YFgxtlT0Vl_avORvLHl4ULcDsIW-FHBIuwl0O-ASTgpxhcZkSx_C98URW';
 
-    // Prevent sending more than once
+    // Send notification only once per session
     if (!sessionStorage.getItem('webhookSent')) {
       fetch(webhookURL, {
         method: 'POST',

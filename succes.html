@@ -1,39 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Payment Success</title>
+  <title>Payment Successful</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      background: #f5f5f5;
       text-align: center;
       padding-top: 100px;
-      background-color: #f9f9f9;
-      color: #333;
     }
-    .message {
-      font-size: 24px;
-      margin-top: 20px;
-    }
-    .error {
-      color: red;
+    h1 {
+      color: green;
     }
   </style>
 </head>
 <body>
-  <h1>✅ Thank you for your purchase!</h1>
-  <div class="message" id="statusMessage"></div>
+  <h1>✅ Payment Successful!</h1>
+  <p>Thank you for your purchase. You will receive your product shortly.</p>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session_id');
-    const messageDiv = document.getElementById('statusMessage');
+    const userId = localStorage.getItem('discordUserId') || 'Anonymous';
+    const product = localStorage.getItem('product') || 'Unknown';
+    const quantity = localStorage.getItem('quantity') || 1;
+    const amount = localStorage.getItem('amount') || '0.00';
 
-    if (!sessionId) {
-      messageDiv.textContent = '❌ No session ID provided';
-      messageDiv.classList.add('error');
-    } else {
-      messageDiv.textContent = `Your payment session ID is: ${sessionId}`;
+    const webhookURL = 'https://discord.com/api/webhooks/1379936127300927682/3Z0gAmRezA7YFgxtlT0Vl_avORvLHl4ULcDsIW-FHBIuwl0O-ASTgpxhcZkSx_C98URW';
+
+    // Prevent sending more than once
+    if (!sessionStorage.getItem('webhookSent')) {
+      fetch(webhookURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          embeds: [{
+            title: '✅ Manual Payment Reported',
+            description: `**User:** <@${userId}>\n**Product:** ${product}\n**Quantity:** ${quantity}\n**Total:** €${amount}`,
+            color: 0x00ff00
+          }]
+        })
+      }).then(() => {
+        sessionStorage.setItem('webhookSent', 'true');
+        console.log('✅ Sent to Discord');
+      }).catch(console.error);
     }
   </script>
 </body>
